@@ -2,8 +2,12 @@ output "region" {
   value = var.region
 }
 
-output "logger_public_ip" {
-  value = azurerm_public_ip.logger-publicip.ip_address
+#output "logger_public_ip" {
+#  value = azurerm_public_ip.logger-publicip.ip_address
+#}
+
+output "logger_public_ip_extzone" {
+  value = azurerm_public_ip.logger-publicip-extzone.ip_address
 }
 
 output "dc_public_ip" {

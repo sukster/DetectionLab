@@ -21,7 +21,7 @@ locals {
 }
 
 resource "azurerm_resource_group" "detectionlab" {
-  name = "DetectionLab-terraform"
+  name = "DetectionLab"
   location = var.region
 }
 
@@ -38,6 +38,14 @@ resource "azurerm_subnet" "detectionlab-subnet" {
   resource_group_name  = azurerm_resource_group.detectionlab.name
   virtual_network_name = azurerm_virtual_network.detectionlab-network.name
   address_prefixes       = ["192.168.38.0/24"]
+}
+
+# Create a subnet for external zone used by logger for Internet access
+resource "azurerm_subnet" "detectionlab-extzone" {
+  name                 = "DetectionLab-ExtZone-Subnet"
+  resource_group_name  = azurerm_resource_group.detectionlab.name
+  virtual_network_name = azurerm_virtual_network.detectionlab-network.name
+  address_prefixes       = ["192.168.254.0/24"]
 }
 
 resource "azurerm_network_security_group" "detectionlab-nsg" {
@@ -169,8 +177,24 @@ resource "azurerm_subnet_network_security_group_association" "detectionlab-nsga"
   network_security_group_id = azurerm_network_security_group.detectionlab-nsg.id
 }
 
+resource "azurerm_subnet_network_security_group_association" "detectionlab-extzone-nsga" {
+  subnet_id                 = azurerm_subnet.detectionlab-extzone.id
+  network_security_group_id = azurerm_network_security_group.detectionlab-nsg.id
+}
+
 resource "azurerm_public_ip" "logger-publicip" {
   name                = "logger-public-ip"
+  location            = var.region
+  resource_group_name = azurerm_resource_group.detectionlab.name
+  allocation_method   = "Static"
+
+  tags = {
+    role = "logger"
+  }
+}
+
+resource "azurerm_public_ip" "logger-publicip-extzone" {
+  name                = "logger-public-ip-extzone"
   location            = var.region
   resource_group_name = azurerm_resource_group.detectionlab.name
   allocation_method   = "Static"
@@ -184,6 +208,7 @@ resource "azurerm_network_interface" "logger-nic" {
   name                = "logger-nic"
   location            = var.region
   resource_group_name = azurerm_resource_group.detectionlab.name
+  enable_ip_forwarding = true ### Added IP forwarding
 
   ip_configuration {
     name                          = "logger-NicConfiguration"
@@ -191,6 +216,36 @@ resource "azurerm_network_interface" "logger-nic" {
     private_ip_address_allocation = "Static"
     private_ip_address            = "192.168.38.105"
     public_ip_address_id          = azurerm_public_ip.logger-publicip.id
+  }
+}
+
+# Create a second logger interface to be used for Internet access
+resource "azurerm_network_interface" "logger-nic-extzone" {
+  name                = "logger-nic-extzone"
+  location            = var.region
+  resource_group_name = azurerm_resource_group.detectionlab.name
+
+  ip_configuration {
+    name                          = "logger-NicConfiguration-ExtZone"
+    subnet_id                     = azurerm_subnet.detectionlab-extzone.id
+    private_ip_address_allocation = "Static"
+    private_ip_address            = "192.168.254.254"
+    public_ip_address_id          = azurerm_public_ip.logger-publicip-extzone.id
+  }
+}
+
+# Create a Route Table to route the Windows machine traffic through logger
+resource "azurerm_route_table" "detectionlab-routetable" {
+  name                          = "DetectionLab-RouteTable"
+  location                      = var.region
+  resource_group_name           = azurerm_resource_group.detectionlab.name
+  disable_bgp_route_propagation = false
+
+  route {
+    name           = "InternetRoute"
+    address_prefix = "0.0.0.0/0"
+    next_hop_type  = "VirtualAppliance"
+    next_hop_in_ip_address = "192.168.38.105"
   }
 }
 
@@ -216,7 +271,8 @@ resource "azurerm_virtual_machine" "logger" {
   name = "logger"
   location = var.region
   resource_group_name  = azurerm_resource_group.detectionlab.name
-  network_interface_ids = [azurerm_network_interface.logger-nic.id]
+  network_interface_ids = [azurerm_network_interface.logger-nic.id, azurerm_network_interface.logger-nic-extzone.id]
+  primary_network_interface_id = azurerm_network_interface.logger-nic-extzone.id
   vm_size               = "Standard_D1_v2"
 
   delete_os_disk_on_termination = true
@@ -259,7 +315,7 @@ resource "azurerm_virtual_machine" "logger" {
   # https://www.terraform.io/docs/provisioners/connection.html
   provisioner "remote-exec" {
     connection {
-      host = azurerm_public_ip.logger-publicip.ip_address
+      host = azurerm_public_ip.logger-publicip-extzone.ip_address ##### changed to publicip-extzone
       user     = "vagrant"
       private_key = file(var.private_key_path)
     }
@@ -272,13 +328,19 @@ resource "azurerm_virtual_machine" "logger" {
       "sudo mkdir /home/vagrant/.ssh && sudo cp /home/ubuntu/.ssh/authorized_keys /home/vagrant/.ssh/authorized_keys && sudo chown -R vagrant:vagrant /home/vagrant/.ssh",
       "echo 'vagrant    ALL=(ALL:ALL) NOPASSWD:ALL' | sudo tee -a /etc/sudoers",
       "sudo git clone https://github.com/clong/DetectionLab.git /opt/DetectionLab",
-      "sudo sed -i 's/eth1/eth0/g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
-      "sudo sed -i 's/ETH1/ETH0/g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
+      ## "sudo sed -i 's/eth1/eth0/g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
+      ## "sudo sed -i 's/ETH1/ETH0/g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
       "sudo sed -i 's#/usr/local/go/bin/go get -u#GOPATH=/root/go /usr/local/go/bin/go get -u#g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
       "sudo sed -i 's#/vagrant/resources#/opt/DetectionLab/Vagrant/resources#g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
       "sudo chmod +x /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
       "sudo apt-get -qq update",
       "sudo /opt/DetectionLab/Vagrant/logger_bootstrap.sh 2>&1 |sudo tee /opt/DetectionLab/Vagrant/bootstrap.log",
+      "sudo sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf",
+      "sudo sysctl -p",
+      "sudo sh -c 'echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections'",
+      "sudo sh -c 'echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections'",
+      "sudo apt-get -y install iptables-persistent",
+      "sudo iptables -t nat -A POSTROUTING -j MASQUERADE && sudo iptables-save | sudo tee /etc/iptables/rules.v4"
     ]
   }
 
