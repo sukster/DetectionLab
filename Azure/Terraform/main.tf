@@ -330,7 +330,6 @@ resource "azurerm_virtual_machine" "logger" {
       "sudo git clone https://github.com/clong/DetectionLab.git /opt/DetectionLab",
       ## "sudo sed -i 's/eth1/eth0/g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
       ## "sudo sed -i 's/ETH1/ETH0/g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
-      "sudo sed -i 's/192.168.38.105:8412/localhost:8412/g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh", ## Added new line to make Fleet work with second interface
       "sudo sed -i 's#/usr/local/go/bin/go get -u#GOPATH=/root/go /usr/local/go/bin/go get -u#g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
       "sudo sed -i 's#/vagrant/resources#/opt/DetectionLab/Vagrant/resources#g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
       "sudo chmod +x /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
