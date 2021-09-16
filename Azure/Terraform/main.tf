@@ -182,16 +182,16 @@ resource "azurerm_subnet_network_security_group_association" "detectionlab-extzo
   network_security_group_id = azurerm_network_security_group.detectionlab-nsg.id
 }
 
-resource "azurerm_public_ip" "logger-publicip" {
-  name                = "logger-public-ip"
-  location            = var.region
-  resource_group_name = azurerm_resource_group.detectionlab.name
-  allocation_method   = "Static"
+# resource "azurerm_public_ip" "logger-publicip" {
+#   name                = "logger-public-ip"
+#   location            = var.region
+#   resource_group_name = azurerm_resource_group.detectionlab.name
+#   allocation_method   = "Static"
 
-  tags = {
-    role = "logger"
-  }
-}
+#   tags = {
+#     role = "logger"
+#   }
+# }
 
 resource "azurerm_public_ip" "logger-publicip-extzone" {
   name                = "logger-public-ip-extzone"
@@ -215,7 +215,7 @@ resource "azurerm_network_interface" "logger-nic" {
     subnet_id                     = azurerm_subnet.detectionlab-subnet.id
     private_ip_address_allocation = "Static"
     private_ip_address            = "192.168.38.105"
-    public_ip_address_id          = azurerm_public_ip.logger-publicip.id
+#    public_ip_address_id          = azurerm_public_ip.logger-publicip.id
   }
 }
 
@@ -330,11 +330,13 @@ resource "azurerm_virtual_machine" "logger" {
       "sudo git clone https://github.com/clong/DetectionLab.git /opt/DetectionLab",
       ## "sudo sed -i 's/eth1/eth0/g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
       ## "sudo sed -i 's/ETH1/ETH0/g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
+      "sudo sed -i 's/192.168.38.105:8412/localhost:8412/g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh", ## Added new line to make Fleet work with second interface
       "sudo sed -i 's#/usr/local/go/bin/go get -u#GOPATH=/root/go /usr/local/go/bin/go get -u#g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
       "sudo sed -i 's#/vagrant/resources#/opt/DetectionLab/Vagrant/resources#g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
       "sudo chmod +x /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
       "sudo apt-get -qq update",
       "sudo /opt/DetectionLab/Vagrant/logger_bootstrap.sh 2>&1 |sudo tee /opt/DetectionLab/Vagrant/bootstrap.log",
+      ## Lines below enable logger to route traffic
       "sudo sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf",
       "sudo sysctl -p",
       "sudo sh -c 'echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections'",
