@@ -330,6 +330,7 @@ resource "azurerm_virtual_machine" "logger" {
       "sudo git clone https://github.com/clong/DetectionLab.git /opt/DetectionLab",
       ## "sudo sed -i 's/eth1/eth0/g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
       ## "sudo sed -i 's/ETH1/ETH0/g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
+      "sudo sed -i "s/ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'fleet';/ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'fleet'; CREATE USER 'root'@'%' IDENTIFIED BY 'fleet'; GRANT ALL PRIVILEGES ON *.* TO 'root'@'%'; FLUSH PRIVILEGES;/g" /opt/DetectionLab/Vagrant/logger_bootstrap.sh", ## Fix for Fleet and mySQL
       "sudo sed -i 's#/usr/local/go/bin/go get -u#GOPATH=/root/go /usr/local/go/bin/go get -u#g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
       "sudo sed -i 's#/vagrant/resources#/opt/DetectionLab/Vagrant/resources#g' /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
       "sudo chmod +x /opt/DetectionLab/Vagrant/logger_bootstrap.sh",
