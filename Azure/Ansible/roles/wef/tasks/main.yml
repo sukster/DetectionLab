@@ -146,12 +146,12 @@
     - "Set-SmbServerConfiguration -AuditSmb1Access $true -Force"
 
 ## Remove the commented lines to enable WEF for Azure Sentinel
-- name: Copy sentinel-wef-fix.ps1 script to WEF
-  ansible.builtin.copy:
-    src: './../files/sentinel-wef-fix.ps1'
-    dest: 'c:\vagrant\scripts\sentinel-wef-fix.ps1'
+# - name: Copy sentinel-wef-fix.ps1 script to WEF
+#   ansible.builtin.copy:
+#     src: './../files/sentinel-wef-fix.ps1'
+#     dest: 'c:\vagrant\scripts\sentinel-wef-fix.ps1'
 
-- name: Execute sentinel-wef-fix.ps1 script
-  win_shell: .\\sentinel-wef-fix.ps1
-  args:
-    chdir: 'c:\vagrant\scripts'
+# - name: Execute sentinel-wef-fix.ps1 script
+#   win_shell: .\\sentinel-wef-fix.ps1
+#   args:
+#     chdir: 'c:\vagrant\scripts'
