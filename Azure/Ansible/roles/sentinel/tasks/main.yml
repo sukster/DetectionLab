@@ -1,4 +1,13 @@
 ---
+- name: Download Splunk Inputs customized for Sentinel
+  win_get_url:
+    url: https://raw.githubusercontent.com/sukster/DetectionLab/sentinel/Vagrant/resources/splunk_forwarder/sentinel_wef_inputs.conf
+    dest: "C:\\vagrant\\resources\\splunk_forwarder\\sentinel_wef_inputs.conf"
+    timeout: 3600
+
+- name: Copy Splunk Inputs to Splunk Folder
+  win_shell: Copy-Item 'C:\vagrant\resources\splunk_forwarder\sentinel_wef_inputs.conf' 'C:\Program Files\SplunkUniversalForwarder\etc\apps\Splunk_TA_windows\local\inputs.conf'
+
 - name: Copy download_sentinel_wef.ps1 script to WEF
   ansible.builtin.copy:
     src: './../files/download_sentinel_wef.ps1'
