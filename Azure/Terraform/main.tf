@@ -21,7 +21,7 @@ locals {
 }
 
 resource "azurerm_resource_group" "detectionlab" {
-  name = "DetectionLab-Ludek"
+  name = "DetectionLab"
   location = var.region
 }
 
