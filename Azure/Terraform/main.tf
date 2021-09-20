@@ -342,7 +342,9 @@ resource "azurerm_virtual_machine" "logger" {
       "sudo sh -c 'echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections'",
       "sudo sh -c 'echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections'",
       "sudo apt-get -y install iptables-persistent",
-      "sudo iptables -t nat -A POSTROUTING -j MASQUERADE && sudo iptables-save | sudo tee /etc/iptables/rules.v4"
+      "sudo iptables -t nat -A POSTROUTING -j MASQUERADE",
+      "sudo iptables -I POSTROUTING 1 -t nat -d 127.0.0.1 -j ACCEPT", # This is needed for Splunk Web to work correctly
+      "sudo iptables-save | sudo tee /etc/iptables/rules.v4"
     ]
   }
 
