@@ -1,0 +1,5 @@
+---
+- hosts: wef
+  roles:
+    - sentinel
+  tags: wef-sentinel

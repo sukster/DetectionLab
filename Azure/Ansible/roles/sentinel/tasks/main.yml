@@ -1,0 +1,22 @@
+---
+- name: Copy download_sentinel_wef.ps1 script to WEF
+  ansible.builtin.copy:
+    src: './../files/download_sentinel_wef.ps1'
+    dest: 'c:\vagrant\scripts\download_sentinel_wef.ps1'
+
+- name: Execute download_sentinel_wef.ps1 script
+  win_shell: .\\download_sentinel_wef.ps1
+  args:
+    chdir: 'c:\vagrant\scripts'
+
+- name: Copy install-sentinel-wefsubscriptions.ps1 script to WEF
+  ansible.builtin.copy:
+    src: './../files/install-sentinel-wefsubscriptions.ps1'
+    dest: 'c:\vagrant\scripts\install-sentinel-wefsubscriptions.ps1'
+
+- name: Execute install-sentinel-wefsubscriptions.ps1 script
+  win_shell: .\\install-sentinel-wefsubscriptions.ps1
+  args:
+    chdir: 'c:\vagrant\scripts'
+
+
