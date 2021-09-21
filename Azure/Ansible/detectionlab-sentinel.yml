@@ -1,3 +1,6 @@
 ---
-- include: detectionlab.yml
-- include: sentinel.yml
+- name: Run detectionlab playbook
+  import_playbook: detectionlab.yml
+
+- name: Run sentinel playbook
+  import_playbook: sentinel.yml

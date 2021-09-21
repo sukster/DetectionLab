@@ -4,49 +4,26 @@
     url: https://raw.githubusercontent.com/sukster/DetectionLab/sentinel/Vagrant/resources/splunk_forwarder/sentinel_wef_inputs.conf
     dest: "C:\\vagrant\\resources\\splunk_forwarder\\sentinel_wef_inputs.conf"
     timeout: 3600
-  register: download_sentinel_wef_inputs
-
-- debug: msg="{{ download_sentinel_wef_inputs.stdout_lines }}"
 
 - name: Copy Splunk Inputs to Splunk Folder
   win_shell: Copy-Item 'C:\vagrant\resources\splunk_forwarder\sentinel_wef_inputs.conf' 'C:\Program Files\SplunkUniversalForwarder\etc\apps\Splunk_TA_windows\local\inputs.conf'
-  register: copy_sentinel_wef_inputs
-
-- debug: msg="{{ copy_sentinel_wef_inputs.stdout_lines }}"
 
 - name: Copy download_sentinel_wef.ps1 script to WEF
   ansible.builtin.copy:
     src: './../files/download_sentinel_wef.ps1'
     dest: 'c:\vagrant\scripts\download_sentinel_wef.ps1'
-  register: download_sentinel_wef_script
-
-- debug: msg="{{ download_sentinel_wef_script.stdout_lines }}"
 
 - name: Execute download_sentinel_wef.ps1 script
   win_shell: .\\download_sentinel_wef.ps1
   args:
     chdir: 'c:\vagrant\scripts'
-  register: execute_sentinel_wef_script
-  failed_when: "'Exception' in execute_sentinel_wef_script.stdout"
-  changed_when: "' already exists. Moving On.' not in execute_sentinel_wef_script.stdout"
-
-- debug: msg="{{ execute_sentinel_wef_script.stdout_lines }}"
 
 - name: Copy install-sentinel-wefsubscriptions.ps1 script to WEF
   ansible.builtin.copy:
     src: './../files/install-sentinel-wefsubscriptions.ps1'
     dest: 'c:\vagrant\scripts\install-sentinel-wefsubscriptions.ps1'
-  register: copy_install_sentinel_wefsubscriptions
-
-- debug: msg="{{ copy_install_sentinel_wefsubscriptions.stdout_lines }}"
 
 - name: Execute install-sentinel-wefsubscriptions.ps1 script
   win_shell: .\\install-sentinel-wefsubscriptions.ps1
   args:
     chdir: 'c:\vagrant\scripts'
-  register: execute_install_sentinel_wefsubscriptions
-  failed_when: "'Exception' in execute_install_sentinel_wefsubscriptions.stdout"
-  changed_when: "'The file exists.' not in execute_install_sentinel_wefsubscriptions.stdout"
-
-- debug: msg="{{ execute_install_sentinel_wefsubscriptions.stdout_lines }}"
-
