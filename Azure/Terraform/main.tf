@@ -273,7 +273,7 @@ resource "azurerm_virtual_machine" "logger" {
   resource_group_name  = azurerm_resource_group.detectionlab.name
   network_interface_ids = [azurerm_network_interface.logger-nic.id, azurerm_network_interface.logger-nic-extzone.id]
   primary_network_interface_id = azurerm_network_interface.logger-nic-extzone.id
-  vm_size               = "Standard_D1_v2"
+  vm_size               = "Standard_B2s"
 
   delete_os_disk_on_termination = true
 
@@ -436,7 +436,7 @@ resource "azurerm_virtual_machine" "dc" {
   location = var.region
   resource_group_name   = azurerm_resource_group.detectionlab.name
   network_interface_ids = [azurerm_network_interface.dc-nic.id]
-  vm_size               = "Standard_D1_v2"
+  vm_size               = "Standard_B2s"
 
   delete_os_disk_on_termination = true
 
@@ -492,7 +492,7 @@ resource "azurerm_virtual_machine" "wef" {
   location = var.region
   resource_group_name  = azurerm_resource_group.detectionlab.name
   network_interface_ids = [azurerm_network_interface.wef-nic.id]
-  vm_size               = "Standard_D1_v2"
+  vm_size               = "Standard_B2s"
 
   delete_os_disk_on_termination = true
 
@@ -549,7 +549,7 @@ resource "azurerm_virtual_machine" "win10" {
   location = var.region
   resource_group_name  = azurerm_resource_group.detectionlab.name
   network_interface_ids = [azurerm_network_interface.win10-nic.id]
-  vm_size               = "Standard_D1_v2"
+  vm_size               = "Standard_B2s"
 
   delete_os_disk_on_termination = true
 
