@@ -98,9 +98,7 @@ resource "null_resource" "omsagent_config" {
       "sudo cp /home/vagrant/conf/*.conf /etc/opt/microsoft/omsagent/${azurerm_log_analytics_workspace.detectionlab.workspace_id}/conf/omsagent.d",
       "sudo chown -R omsagent:omiusers /etc/opt/microsoft/omsagent/${azurerm_log_analytics_workspace.detectionlab.workspace_id}/conf/omsagent.d",
       "sudo /opt/microsoft/omsagent/bin/service_control restart",
-      "rm -Rf /home/vagrant/conf",
-      ## "sudo /opt/splunk/bin/splunk stop",
-      ## "sudo /opt/splunk/bin/splunk disable boot-start"
+      "rm -Rf /home/vagrant/conf"
     ]
   }
 }

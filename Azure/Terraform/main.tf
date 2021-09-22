@@ -182,19 +182,8 @@ resource "azurerm_subnet_network_security_group_association" "detectionlab-extzo
   network_security_group_id = azurerm_network_security_group.detectionlab-nsg.id
 }
 
-# resource "azurerm_public_ip" "logger-publicip" {
-#   name                = "logger-public-ip"
-#   location            = var.region
-#   resource_group_name = azurerm_resource_group.detectionlab.name
-#   allocation_method   = "Static"
-
-#   tags = {
-#     role = "logger"
-#   }
-# }
-
-resource "azurerm_public_ip" "logger-publicip-extzone" {
-  name                = "logger-public-ip-extzone"
+resource "azurerm_public_ip" "logger-publicip" {
+  name                = "logger-public-ip"
   location            = var.region
   resource_group_name = azurerm_resource_group.detectionlab.name
   allocation_method   = "Static"
@@ -230,7 +219,7 @@ resource "azurerm_network_interface" "logger-nic-extzone" {
     subnet_id                     = azurerm_subnet.detectionlab-extzone.id
     private_ip_address_allocation = "Static"
     private_ip_address            = "192.168.254.254"
-    public_ip_address_id          = azurerm_public_ip.logger-publicip-extzone.id
+    public_ip_address_id          = azurerm_public_ip.logger-publicip.id
   }
 }
 
@@ -315,7 +304,7 @@ resource "azurerm_virtual_machine" "logger" {
   # https://www.terraform.io/docs/provisioners/connection.html
   provisioner "remote-exec" {
     connection {
-      host = azurerm_public_ip.logger-publicip-extzone.ip_address ##### changed to publicip-extzone
+      host = azurerm_public_ip.logger-publicip.ip_address
       user     = "vagrant"
       private_key = file(var.private_key_path)
     }

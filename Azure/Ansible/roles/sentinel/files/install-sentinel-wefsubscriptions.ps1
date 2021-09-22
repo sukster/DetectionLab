@@ -10,15 +10,20 @@ if ((Test-Path "$env:windir\system32\CustomEventChannels.dll"))
 	cd c:\Users\vagrant\AppData\Local\Temp\Sentinel-WEF\windows-event-forwarding-master\wef-subscriptions
 	cmd /c "for /r %i in (*.xml) do wecutil cs %i"
 	
-	Start-Sleep -Seconds 5
+	Write-Host "$('[{0:HH:mm}]' -f (Get-Date)) Waiting for 10 seconds..."
+	Start-Sleep -Seconds 10
 
 	Write-Host "$('[{0:HH:mm}]' -f (Get-Date)) Enabling custom event subscriptions for Azure Sentinel..."
 	cmd /c "for /r %i in (*.xml) do wecutil ss %~ni /e:true"
 	
-	Start-Sleep -Seconds 5
+	Write-Host "$('[{0:HH:mm}]' -f (Get-Date)) Waiting for 10 seconds..."
+	Start-Sleep -Seconds 10
 
 	Write-Host "$('[{0:HH:mm}]' -f (Get-Date)) Enabling WecUtil Quick Config..."
 	wecutil qc /q:true
+
+	Write-Host "$('[{0:HH:mm}]' -f (Get-Date)) Waiting for 10 seconds..."
+	Start-Sleep -Seconds 10
 	
 	Write-Host "$('[{0:HH:mm}]' -f (Get-Date)) Restarting the Windows Event Collector Service..."
 	Restart-Service -Name Wecsvc
