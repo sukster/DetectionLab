@@ -37,3 +37,8 @@
 
 - debug: var=execute_install_sentinel_wef.stdout_lines
 - debug: var=execute_install_sentinel_wef.stderr
+
+- name: Clear All Event Logs
+  win_shell: "{{ item }}"
+  with_items:
+    - "wevtutil el | Select-String -notmatch \"Microsoft-Windows-LiveId\" | Foreach-Object {wevtutil cl \"$_\"}"
