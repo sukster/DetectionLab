@@ -1,29 +1,47 @@
 ---
-- name: Download Splunk Inputs customized for Sentinel
+- name: Download Custom Splunk Inputs
   win_get_url:
     url: https://raw.githubusercontent.com/sukster/DetectionLab/sentinel/Vagrant/resources/splunk_forwarder/sentinel_wef_inputs.conf
     dest: "C:\\vagrant\\resources\\splunk_forwarder\\sentinel_wef_inputs.conf"
     timeout: 3600
+  register: download_custom_splunk_inputs
 
-- name: Copy Splunk Inputs to Splunk Folder
+- debug: var=download_custom_splunk_inputs.stdout_lines
+
+- name: Copy Custom Splunk Inputs
   win_shell: Copy-Item 'C:\vagrant\resources\splunk_forwarder\sentinel_wef_inputs.conf' 'C:\Program Files\SplunkUniversalForwarder\etc\apps\Splunk_TA_windows\local\inputs.conf'
+  register: copy_custom_splunk_inputs
 
-- name: Copy download_sentinel_wef.ps1 script to WEF
+- debug: var=copy_custom_splunk_inputs.stdout_lines
+
+- name: Copy download_sentinel_wef script
   ansible.builtin.copy:
     src: './../files/download_sentinel_wef.ps1'
     dest: 'c:\vagrant\scripts\download_sentinel_wef.ps1'
+  register: copy_download_sentinel_wef
 
-- name: Execute download_sentinel_wef.ps1 script
+- debug: var=copy_download_sentinel_wef.stdout_lines
+
+- name: Execute download_sentinel_wef script
   win_shell: .\\download_sentinel_wef.ps1
   args:
     chdir: 'c:\vagrant\scripts'
+  register: execute_download_sentinel_wef
 
-- name: Copy install-sentinel-wefsubscriptions.ps1 script to WEF
+- debug: var=execute_download_sentinel_wef.stdout_lines
+
+- name: Copy install-sentinel-wefsubscriptions script
   ansible.builtin.copy:
     src: './../files/install-sentinel-wefsubscriptions.ps1'
     dest: 'c:\vagrant\scripts\install-sentinel-wefsubscriptions.ps1'
+  register: copy_install_sentinel_wef
 
-- name: Execute install-sentinel-wefsubscriptions.ps1 script
+- debug: var=copy_install_sentinel_wef.stdout_lines
+
+- name: Execute install-sentinel-wefsubscriptions script
   win_shell: .\\install-sentinel-wefsubscriptions.ps1
   args:
     chdir: 'c:\vagrant\scripts'
+  register: execute_install_sentinel_wef
+
+- debug: var=execute_install_sentinel_wef.stdout_lines

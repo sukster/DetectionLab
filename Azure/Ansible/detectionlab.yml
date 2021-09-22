@@ -9,6 +9,7 @@
   roles:
     - wef
     - common
+    - sentinel
   tags: wef
 
 - hosts: win10
