@@ -93,3 +93,10 @@
         path: 'c:\Program Files\Classic Shell\.menu_install_done'
         state: touch
   when: not menu_install.stat.exists
+
+- name: Reboot to Fix Domain Access Issues
+  win_reboot:
+    msg: "Rebooting to fix domain access issues..."
+    pre_reboot_delay: 15
+    reboot_timeout: 600
+    post_reboot_delay: 60

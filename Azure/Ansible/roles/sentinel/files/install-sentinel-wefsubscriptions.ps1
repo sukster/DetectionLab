@@ -27,6 +27,12 @@ if ((Test-Path "$env:windir\system32\CustomEventChannels.dll"))
 	
 	Write-Host "$('[{0:HH:mm}]' -f (Get-Date)) Restarting the Windows Event Collector Service..."
 	Restart-Service -Name Wecsvc
+
+	Write-Host "$('[{0:HH:mm}]' -f (Get-Date)) Waiting for 10 seconds..."
+	Start-Sleep -Seconds 10
+	
+	Write-Host "$('[{0:HH:mm}]' -f (Get-Date)) Restarting the Microsoft Monitoring Agent Service..."
+	Restart-Service -Name HealthService
 }
 else
 {
@@ -36,4 +42,9 @@ else
 if ((Get-Service -Name wecsvc).Status -ne "Running")
 {
     throw "Windows Event Collector failed to restart"
+}
+
+if ((Get-Service -Name HealthService).Status -ne "Running")
+{
+    throw "Microsoft Monitoring Agent failed to restart"
 }
