@@ -1,2 +1,2 @@
-# Building DetectionLab on Proxmox VE
+# Building DetectionLab on Proxmox
 Documentation: https://www.detectionlab.network/deployment/proxmox/
